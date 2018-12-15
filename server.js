@@ -7,7 +7,7 @@ var mongoose = require("mongoose");
 var db = require("./models");
 
 // Connect to the Mongo DB
-mongoose.connect("mongodb://localhost/newsScrape", { useNewUrlParser: true });
+mongoose.connect(process.env.MONGODB_URI || "mongodb://localhost/newsScrape", { useNewUrlParser: true });
 
 // how do we create models when using mongoose ????manually
 // we dont need route files anymore?? not even when we are using handlebars with mongoose???
