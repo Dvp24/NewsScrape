@@ -22,13 +22,6 @@ app.use(express.json());
 // Static directory
 app.use(express.static("public"));
 
-// Set Handlebars============================
-// if we are not using handlebars then what was the way to set up the default html page?
-// const exphbs = require("express-handlebars");
-
-// app.engine("handlebars", exphbs({ defaultLayout: "main" }));
-// app.set("view engine", "handlebars");
-
 // Routes===============================
 // A GET route for scraping the nytimes website
 app.get("/scrape", function(req, res){
@@ -51,7 +44,9 @@ app.get("/scrape", function(req, res){
       result.para = $(element)
       .find("p")
       .text();
-
+      result.author = $(element)
+      .find(".css-1n7hynb")
+      .text();
       console.log(result)
 
     // creating a new article using the result obj buit by scraping
@@ -81,6 +76,32 @@ app.get("/api/articles", function(req, res) {
       res.json(err);
     });
 });
+// route to save the specific article
+app.put("/save/:id", function(req, res){
+  db.Article.findByIdAndUpdate(req.params.id, {$set: {isSaved: true}}, {new: true})
+    .then(function(savedArticle){
+    console.log(savedArticle);
+    res.json(savedArticle);
+    })
+    .catch(function(err){
+      console.log(err)
+      res.json(err);
+    })
+})
+
+// route for getting all saved articles
+app.get("/api/saved-articles", function(req, res) {
+  // Grab every document in the Articles collection
+  db.Saved.find({})
+    .then(function(dbsaved) {
+      // If we were able to successfully find Articles, send them back to the client
+      res.json(dbsaved);
+    })
+    .catch(function(err) {
+      // If an error occurred, send it to the client
+      res.json(err);
+    });
+});
 
 // Route for grabbing a specific Article by id, populate it with it's note
 app.get("/articles/:id", function(req, res) {
@@ -97,6 +118,9 @@ app.get("/articles/:id", function(req, res) {
     });
 
 });
+app.get("/", function(req,res){
+  db.Article.drop()
+})
 
 
 // starting our Express app===================
